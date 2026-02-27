@@ -1,0 +1,33 @@
+import { test, expect } from "@playwright/test";
+
+test("deposit success", async ({ page }) => {
+  await page.goto(
+    "https://atm-buddy-lite.lovable.app/?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBExY1RVU2UzVlhZNU1ZVFV6SwEeG95HaKRUZ4S4SsfHUDDsw3FFGPEyhRh_Fn_77KciqvuNxyxd4FkEFK02O9c_aem_ycGlUd5UYRQc-LADxvwcLQ",
+  );
+  await page.getByRole("textbox", { name: "ตัวอย่าง: 123456" }).click();
+  await page.getByRole("textbox", { name: "ตัวอย่าง: 123456" }).fill("123456");
+  await page.getByRole("textbox", { name: "รหัส PIN 4 หลัก" }).click();
+  await page.getByRole("textbox", { name: "รหัส PIN 4 หลัก" }).fill("1234");
+  await page.getByRole("button", { name: "เข้าสู่ระบบ" }).click();
+  await expect(page.getByText("เข้าสู่ระบบสำเร็จ", { exact: true })).toBeVisible();
+  await page.getByText("Deposit").click();
+  await page.getByRole("button", { name: "฿500.00" }).click();
+  await page.getByRole("button", { name: "ฝากเงิน ฿500.00" }).click();
+  await expect(page.getByText("ฝากเงินสำเร็จ", { exact: true })).toBeVisible();
+});
+
+test("deposit fail", async ({ page }) => {
+  await page.goto(
+    "https://atm-buddy-lite.lovable.app/?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBExY1RVU2UzVlhZNU1ZVFV6SwEeG95HaKRUZ4S4SsfHUDDsw3FFGPEyhRh_Fn_77KciqvuNxyxd4FkEFK02O9c_aem_ycGlUd5UYRQc-LADxvwcLQ",
+  );
+  await page.getByRole("textbox", { name: "ตัวอย่าง: 123456" }).click();
+  await page.getByRole("textbox", { name: "ตัวอย่าง: 123456" }).fill("123456");
+  await page.getByRole("textbox", { name: "รหัส PIN 4 หลัก" }).click();
+  await page.getByRole("textbox", { name: "รหัส PIN 4 หลัก" }).fill("1234");
+  await page.getByRole("button", { name: "เข้าสู่ระบบ" }).click();
+  await expect(page.getByText("เข้าสู่ระบบสำเร็จ", { exact: true })).toBeVisible();
+  await page.getByText("Deposit").click();
+  await page.getByPlaceholder("0").fill("200000")
+  await page.getByRole("button", { name: "ฝากเงิน ฿200,000.00" }).click();
+  await expect(page.getByText("ฝากเงินสำเร็จ")).not.toBeVisible();
+});
