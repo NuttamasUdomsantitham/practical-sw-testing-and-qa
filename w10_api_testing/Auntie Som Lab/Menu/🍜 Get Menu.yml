@@ -1,0 +1,49 @@
+info:
+  name: 🍜 Get Menu
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{localhost}}/menu"
+  body:
+    type: json
+    data: ""
+  auth: inherit
+
+runtime:
+  variables:
+    - name: local
+      value: http://localhost:5000
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        test("Status 200", () => {
+          if (res.getStatus() !== 200) {
+            throw new Error("Menu request failed");
+          }
+        });
+
+        test("Menu is array", () => {
+          if (!Array.isArray(body)) {
+            throw new Error("Menu is not array");
+          }
+        });
+
+        test("Menu not empty", () => {
+          if (body.length === 0) {
+            throw new Error("Menu is empty");
+          }
+        });
+
+        bru.setEnvVar("itemId", body[0].id);
+        bru.setEnvVar("price", body[0].price);
+        bru.setEnvVar("stock", body[0].stock);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

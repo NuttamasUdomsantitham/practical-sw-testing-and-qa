@@ -1,0 +1,37 @@
+info:
+  name: 🛒 Create Order (OVER STOCK)
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{localhost}}/orders"
+  headers:
+    - name: Authorization
+      value: Bearer <token>
+  body:
+    type: json
+    data: |-
+      {
+        "itemId": {{itemId}},
+        "quantity": 999
+      }
+  auth:
+    type: bearer
+    token: "{{accessToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Should reject overstock", () => {
+          if (res.getStatus() === 200) {
+            throw new Error("Overstock order was allowed");
+          }
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

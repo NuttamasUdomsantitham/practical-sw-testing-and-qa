@@ -1,0 +1,34 @@
+info:
+  name: 🛒 Create Order (NO AUTH)
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{localhost}}/orders"
+  headers:
+    - name: Authorization
+      value: Bearer <token>
+  body:
+    type: json
+    data: |-
+      {
+        "itemId": {{itemId}},
+        "quantity": 1
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Should NOT allow without token", () => {
+          if (res.getStatus() === 200) {
+            throw new Error("Order created without authentication");
+          }
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

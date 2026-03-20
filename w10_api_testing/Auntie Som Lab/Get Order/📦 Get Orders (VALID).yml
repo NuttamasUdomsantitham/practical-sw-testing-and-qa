@@ -1,0 +1,40 @@
+info:
+  name: 📦 Get Orders (VALID)
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{localhost}}/orders/{{orderId}}"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+        const orderId = bru.getEnvVar("orderId");
+
+        test("Status 200", () => {
+          if (res.getStatus() !== 200) {
+            throw new Error("Get order failed");
+          }
+        });
+
+        test("Correct orderId", () => {
+          if (body.orderId !== orderId) {
+            throw new Error("OrderId mismatch");
+          }
+        });
+
+        test("Has totalPrice", () => {
+          if (body.totalPrice === undefined) {
+            throw new Error("Missing totalPrice");
+          }
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

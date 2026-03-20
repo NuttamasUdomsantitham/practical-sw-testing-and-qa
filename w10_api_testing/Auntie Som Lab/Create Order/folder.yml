@@ -1,0 +1,7 @@
+info:
+  name: Create Order
+  type: folder
+  seq: 3
+
+request:
+  auth: inherit

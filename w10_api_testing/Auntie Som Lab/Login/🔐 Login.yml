@@ -1,0 +1,46 @@
+info:
+  name: 🔐 Login
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{localhost}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "username": "student",
+        "password": "hungry"
+      }
+  auth: inherit
+
+runtime:
+  variables:
+    - name: local
+      value: http://localhost:5000
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        test("Login success", () => {
+          if (res.getStatus() !== 200) {
+            throw new Error("Status is not 200");
+          }
+        });
+
+        test("Has accessToken", () => {
+          if (!body.accessToken) {
+            throw new Error("No accessToken found");
+          }
+        });
+
+        // save token
+        bru.setEnvVar("accessToken", body.accessToken);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,37 @@
+info:
+  name: 🛒 Create Order (INVALID ITEM)
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{localhost}}/orders"
+  headers:
+    - name: Authorization
+      value: Bearer <token>
+  body:
+    type: json
+    data: |-
+      {
+        "itemId": 999,
+        "quantity": 1
+      }
+  auth:
+    type: bearer
+    token: "{{accessToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Should fail invalid item", () => {
+          if (res.getStatus() === 200) {
+            throw new Error("Invalid item was accepted");
+          }
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

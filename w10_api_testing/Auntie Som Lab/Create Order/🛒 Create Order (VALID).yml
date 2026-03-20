@@ -1,0 +1,56 @@
+info:
+  name: 🛒 Create Order (VALID)
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{localhost}}/orders"
+  headers:
+    - name: Authorization
+      value: Bearer <token>
+  body:
+    type: json
+    data: |-
+      {
+        "itemId": {{itemId}},
+        "quantity": 1
+      }
+  auth:
+    type: bearer
+    token: "{{accessToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+        const price = bru.getEnvVar("price");
+
+        test("Status 200", () => {
+          if (res.getStatus() !== 200) {
+            throw new Error("Order request failed");
+          }
+        });
+
+        test("Order created", () => {
+          if (body.status !== "created") {
+            throw new Error("Order not created");
+          }
+        });
+
+        // 🔥 
+        test("Correct totalPrice", () => {
+          if (body.totalPrice !== price * 1) {
+            throw new Error(`Wrong totalPrice: got ${body.totalPrice}, expected ${price}`);
+          }
+        });
+
+        // save orderId
+        bru.setEnvVar("orderId", body.orderId);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
